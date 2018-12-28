@@ -1,21 +1,23 @@
-package io.swagger.codegen.languages;
+package io.swagger.codegen.v3.generators.haskell;
 
-import io.swagger.codegen.CliOption;
-import io.swagger.codegen.CodegenConfig;
-import io.swagger.codegen.CodegenConstants;
-import io.swagger.codegen.CodegenModel;
-import io.swagger.codegen.CodegenOperation;
-import io.swagger.codegen.CodegenParameter;
-import io.swagger.codegen.CodegenProperty;
-import io.swagger.codegen.CodegenType;
-import io.swagger.codegen.DefaultCodegen;
-import io.swagger.codegen.SupportingFile;
+import io.swagger.codegen.v3.CliOption;
+import io.swagger.codegen.v3.CodegenConfig;
+import io.swagger.codegen.v3.CodegenConstants;
+import io.swagger.codegen.v3.CodegenModel;
+import io.swagger.codegen.v3.CodegenOperation;
+import io.swagger.codegen.v3.CodegenParameter;
+import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.codegen.v3.CodegenType;
+import io.swagger.codegen.v3.SupportingFile;
+import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,9 +28,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static io.swagger.codegen.languages.helpers.ExtensionHelper.getBooleanValue;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
-public class HaskellServantCodegen extends DefaultCodegen implements CodegenConfig {
+public class HaskellServantCodegen extends DefaultCodegenConfig implements CodegenConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HaskellServantCodegen.class);
 
     // source folder where to write the files
     protected String sourceFolder = "src";
@@ -41,6 +44,7 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
      * @return the CodegenType for this generator
      * @see io.swagger.codegen.CodegenType
      */
+    @Override
     public CodegenType getTag() {
         return CodegenType.SERVER;
     }
@@ -52,7 +56,7 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
      * @return the friendly name for the generator
      */
     public String getName() {
-        return "haskell";
+        return "haskell-servant";
     }
 
     /**
@@ -81,12 +85,6 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
 
         // set the output folder here
         outputFolder = "generated-code/haskell-servant";
-
-    /*
-     * Template Location.  This is the location which templates will be read from.  The generator
-     * will use the resource stream to attempt to read the templates.
-     */
-        embeddedTemplateDir = templateDir = "haskell-servant";
 
     /*
      * Api Package.  Optional, if needed, this can be used in templates
@@ -120,15 +118,6 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
      * are available in models, apis, and supporting files
      */
         additionalProperties.put("apiVersion", apiVersion);
-
-    /*
-     * Supporting Files.  You can write single files for the generator with the
-     * entire object tree available.  If the input file has a suffix of `.mustache
-     * it will be processed by the template engine.  Otherwise, it will be copied
-     */
-        supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
-        supportingFiles.add(new SupportingFile("stack.mustache", "", "stack.yaml"));
-        supportingFiles.add(new SupportingFile("Setup.mustache", "", "Setup.hs"));
 
     /*
      * Language Specific Primitives.  These types will not trigger imports by
@@ -554,6 +543,11 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
     }
 
     @Override
+    public String getDefaultTemplateDir() {
+        return getName();
+    }
+
+    @Override
     public String escapeQuotationMark(String input) {
         // remove " to avoid code injection
         return input.replace("\"", "");
@@ -564,4 +558,19 @@ public class HaskellServantCodegen extends DefaultCodegen implements CodegenConf
         return input.replace("{-", "{_-").replace("-}", "-_}");
     }
 
+    @Override
+    public void processOpts() {
+        super.processOpts();
+        embeddedTemplateDir = templateDir = getTemplateDir();
+
+        /*
+         * Supporting Files.  You can write single files for the generator with the
+         * entire object tree available.  If the input file has a suffix of `.mustache
+         * it will be processed by the template engine.  Otherwise, it will be copied
+         */
+        supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
+        supportingFiles.add(new SupportingFile("stack.mustache", "", "stack.yaml"));
+        supportingFiles.add(new SupportingFile("Setup.mustache", "", "Setup.hs"));
+
+    }
 }
