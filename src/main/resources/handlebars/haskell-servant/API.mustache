@@ -63,7 +63,8 @@ instance ToFormUrlEncoded {{vendorExtensions.x-formName}} where
   toFormUrlEncoded value =
     [ {{#formParams}}("{{baseName}}", toQueryParam $ {{vendorExtensions.x-formPrefix}}{{vendorExtensions.x-formParamName}} value){{#hasMore}}
     , {{/hasMore}}{{/formParams}}
-    ]{{/hasFormParams}}{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
+    ]
+{{/hasFormParams}}{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
 
 -- For the form data code generation.
 lookupEither :: FromHttpApiData b => Text -> [(Text, Text)] -> Either String b
