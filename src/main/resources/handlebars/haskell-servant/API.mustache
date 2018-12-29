@@ -47,7 +47,7 @@ import Servant.API
 import Servant.API.Verbs (StdMethod(..), Verb)
 import Servant.Client (Scheme(Http), ServantError, ClientM, client, hoistClient)
 import Servant.Client.Core.Internal.BaseUrl (BaseUrl(..))
-import Web.HttpApiData
+import Web.Internal.FormUrlEncoded (ToForm(..), FromForm(..), parseUnique)
 
 
 {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}{{#hasFormParams}}
@@ -56,11 +56,11 @@ data {{vendorExtensions.x-formName}} = {{vendorExtensions.x-formName}}
   , {{/hasMore}}{{/formParams}}
   } deriving (Show, Eq, Generic)
 
-instance FromFormUrlEncoded {{vendorExtensions.x-formName}} where
-  fromFormUrlEncoded inputs = {{vendorExtensions.x-formName}} <$> {{#formParams}}lookupEither "{{baseName}}" inputs{{#hasMore}} <*> {{/hasMore}}{{/formParams}}
+instance FromForm {{vendorExtensions.x-formName}} where
+  fromForm inputs = {{vendorExtensions.x-formName}} <$> {{#formParams}}parseUnique "{{baseName}}" inputs{{#hasMore}} <*> {{/hasMore}}{{/formParams}}
 
-instance ToFormUrlEncoded {{vendorExtensions.x-formName}} where
-  toFormUrlEncoded value =
+instance ToForm {{vendorExtensions.x-formName}} where
+  toForm value =
     [ {{#formParams}}("{{baseName}}", toQueryParam $ {{vendorExtensions.x-formPrefix}}{{vendorExtensions.x-formParamName}} value){{#hasMore}}
     , {{/hasMore}}{{/formParams}}
     ]
