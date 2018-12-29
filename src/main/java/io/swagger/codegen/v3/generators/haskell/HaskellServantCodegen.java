@@ -238,9 +238,6 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
         additionalProperties.put("titleLower", firstLetterToLower(apiName));
         additionalProperties.put("package", cabalName);
 
-        // Due to the way servant resolves types, we need a high context stack limit
-        additionalProperties.put("contextStackLimit", openAPI.getPaths().size() * 2 + 300);
-
         List<Map<String, Object>> replacements = new ArrayList<>();
         Object[] replacementChars = specialCharReplacements.keySet().toArray();
         for(int i = 0; i < replacementChars.length; i++) {
@@ -453,6 +450,8 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
         op.vendorExtensions.put("x-routeType", joinStrings(" :> ", path));
         op.vendorExtensions.put("x-clientType", joinStrings(" -> ", type));
         op.vendorExtensions.put("x-formName", "Form" + camelize(op.operationId));
+        op.vendorExtensions.put(CodegenConstants.HAS_MORE_EXT_NAME, true);
+
         for(CodegenParameter param : op.formParams) {
             param.vendorExtensions.put("x-formPrefix", camelize(op.operationId, true));
         }
@@ -522,7 +521,7 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
         // check if it's a ModelImpl before casting
 
         String modelType = schema.getType();
-        if(modelType != "object" && typeMapping.containsKey(modelType)) {
+        if(!modelType.equals("object") && typeMapping.containsKey(modelType)) {
             String newtype = typeMapping.get(modelType);
             model.vendorExtensions.put("x-customNewtype", newtype);
         }
