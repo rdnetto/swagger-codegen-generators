@@ -230,9 +230,11 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
 
         // Set the filenames to write for the API
         supportingFiles.add(new SupportingFile("haskell-servant-codegen.mustache", "", cabalName + ".cabal"));
-        supportingFiles.add(new SupportingFile("API.mustache", "lib/" + apiName, "API.hs"));
         supportingFiles.add(new SupportingFile("Types.mustache", "lib/" + apiName, "Types.hs"));
-
+        supportingFiles.add(new SupportingFile("API.mustache", "lib/" + apiName, "API.hs"));
+        supportingFiles.add(new SupportingFile("Common.mustache", "lib/" + apiName, "Common.hs"));
+        supportingFiles.add(new SupportingFile("Client.mustache", "lib/" + apiName, "Client.hs"));
+        supportingFiles.add(new SupportingFile("Server.mustache", "lib/" + apiName, "Server.hs"));
 
         additionalProperties.put("title", apiName);
         additionalProperties.put("titleLower", firstLetterToLower(apiName));
