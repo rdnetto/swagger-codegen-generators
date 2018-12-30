@@ -91,6 +91,7 @@ data ServerConfig = ServerConfig
   } deriving (Eq, Ord, Show, Read)
 
 -- | List of elements parsed from a query.
+--   This newtype is stripped from the backend methods using `coerce`.
 newtype QueryList (p :: CollectionFormat) a = QueryList
   { fromQueryList :: [a]
   } deriving (Functor, Applicative, Monad, Foldable, Traversable)
