@@ -18,26 +18,14 @@ import {{title}}.API
 import {{title}}.Common
 import {{title}}.Types
 
-import Control.Monad.IO.Class
-import Data.Aeson (Value)
+import Control.Monad.IO.Class (MonadIO(..))
 import Data.Coerce (coerce)
 import Data.Function ((&))
-import qualified Data.Map as Map
-import Data.Monoid ((<>))
 import Data.Proxy (Proxy(..))
-import Data.Text (Text)
-import qualified Data.Text as T
-import GHC.Exts (IsString(..))
-import GHC.Generics (Generic)
-import Network.HTTP.Client (Manager, defaultManagerSettings, newManager)
-import Network.HTTP.Types.Method (methodOptions)
+import Data.String (IsString(fromString))
 import qualified Network.Wai.Handler.Warp as Warp
 import Servant (Handler, serve)
 import Servant.API
-import Servant.API.Verbs (StdMethod(..), Verb)
-import Servant.Client (Scheme(Http), ServantError, ClientM, client, hoistClient)
-import Servant.Client.Core.Internal.BaseUrl (BaseUrl(..))
-import Web.Internal.FormUrlEncoded (ToForm(..), FromForm(..), parseUnique)
 
 
 {{#apiInfo}}
