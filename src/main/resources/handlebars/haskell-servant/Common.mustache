@@ -22,6 +22,7 @@ lookupEither key assocs =
         Left result -> Left $ T.unpack result
         Right result -> Right $ result
 
+
 -- | List of elements parsed from a query.
 --   This newtype is stripped from the backend methods using `coerce`.
 newtype QueryList (p :: CollectionFormat) a = QueryList
@@ -35,6 +36,7 @@ data CollectionFormat
   | TabSeparated -- ^ Also called "TSV"
   | PipeSeparated -- ^ `value1|value2|value2`
   | MultiParamArray -- ^ Using multiple GET parameters, e.g. `foo=bar&foo=baz`. Only for GET params.
+
 
 instance FromHttpApiData a => FromHttpApiData (QueryList 'CommaSeparated a) where
   parseQueryParam = parseSeparatedQueryList ','
@@ -54,6 +56,7 @@ instance FromHttpApiData a => FromHttpApiData (QueryList 'MultiParamArray a) whe
 parseSeparatedQueryList :: FromHttpApiData a => Char -> Text -> Either Text (QueryList p a)
 parseSeparatedQueryList char = fmap QueryList . mapM parseQueryParam . T.split (== char)
 
+
 instance ToHttpApiData a => ToHttpApiData (QueryList 'CommaSeparated a) where
   toQueryParam = formatSeparatedQueryList ','
 
@@ -71,4 +74,11 @@ instance ToHttpApiData a => ToHttpApiData (QueryList 'MultiParamArray a) where
 
 formatSeparatedQueryList :: ToHttpApiData a => Char ->  QueryList p a -> Text
 formatSeparatedQueryList char = T.intercalate (T.singleton char) . map toQueryParam . fromQueryList
+
+
+-- | Server or client configuration, specifying the host and port to query or serve on.
+data ServerConfig = ServerConfig
+  { configHost :: String  -- ^ Hostname to serve on, e.g. "127.0.0.1"
+  , configPort :: Int      -- ^ Port to serve on, e.g. 8080
+  } deriving (Eq, Ord, Show, Read)
 

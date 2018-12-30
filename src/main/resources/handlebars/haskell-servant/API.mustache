@@ -41,12 +41,6 @@ type {{title}}API
     :<|> {{/hasMore}}{{/operation}}{{/operations}}{{#hasMore}}
     :<|> {{/hasMore}}{{/apis}}
 
--- | Server or client configuration, specifying the host and port to query or serve on.
-data ServerConfig = ServerConfig
-  { configHost :: String  -- ^ Hostname to serve on, e.g. "127.0.0.1"
-  , configPort :: Int      -- ^ Port to serve on, e.g. 8080
-  } deriving (Eq, Ord, Show, Read)
-
 -- | Backend for {{title}}.
 -- The backend can be used both for the client and the server. The client generated from the {{title}} Swagger spec
 -- is a backend that executes actions by sending HTTP requests (see @create{{title}}Client@). Alternatively, provided
