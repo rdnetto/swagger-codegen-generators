@@ -12,9 +12,10 @@ import Control.Monad.IO.Class (MonadIO(..))
 import Data.Coerce (coerce)
 import Data.Proxy (Proxy(..))
 import Network.HTTP.Client (Manager, defaultManagerSettings, newManager)
+import Prelude
 import Servant.API
-import Servant.Client (Scheme(Http), ClientM, client, hoistClient)
 import Servant.Client.Core.Internal.BaseUrl (BaseUrl(..))
+import Servant.Client (Scheme(Http), ClientM, client, hoistClient)
 
 
 {{#apiInfo}}

@@ -10,15 +10,17 @@ module {{title}}.Types (
 {{/models}}
   ) where
 
+import Data.Aeson.Types (Options(..), defaultOptions)
+import Data.Aeson (Value, FromJSON(..), ToJSON(..), genericToJSON, genericParseJSON)
+import Data.Function ((&))
 import Data.List (stripPrefix)
 import Data.Maybe (fromMaybe)
-import Data.Aeson (Value, FromJSON(..), ToJSON(..), genericToJSON, genericParseJSON)
-import Data.Aeson.Types (Options(..), defaultOptions)
 import Data.Text (Text)
-import qualified Data.Text as T
-import qualified Data.Map as Map
 import GHC.Generics (Generic)
-import Data.Function ((&))
+import Prelude
+import qualified Data.Map as Map
+import qualified Data.Text as T
+
 {{#imports}}import {{import}}
 {{/imports}}
 

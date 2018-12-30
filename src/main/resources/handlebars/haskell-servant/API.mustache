@@ -10,10 +10,11 @@ module {{title}}.API where
 import {{title}}.Common
 import {{title}}.Types
 
-import qualified Data.Map as Map
 import Data.Text (Text)
-import qualified Data.Text as T
 import GHC.Generics (Generic)
+import Prelude
+import qualified Data.Map as Map
+import qualified Data.Text as T
 import Servant.API
 import Servant.API.Verbs (StdMethod(..), Verb)
 import Web.Internal.FormUrlEncoded (ToForm(..), FromForm(..), parseUnique)
