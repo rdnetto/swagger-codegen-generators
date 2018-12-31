@@ -10,11 +10,11 @@ module {{title}}.API where
 import {{title}}.Common
 import {{title}}.Types
 
+import qualified Data.Map as Map
 import Data.Text (Text)
+import qualified Data.Text as T
 import GHC.Generics (Generic)
 import Prelude
-import qualified Data.Map as Map
-import qualified Data.Text as T
 import Servant.API
 import Servant.API.Verbs (StdMethod(..), Verb)
 import Web.Internal.FormUrlEncoded (ToForm(..), FromForm(..), parseUnique)
@@ -36,20 +36,12 @@ instance ToForm {{vendorExtensions.x-formName}} where
     ]
 {{/hasFormParams}}{{/operation}}{{/operations}}{{/apis}}
 
+
 -- | Servant type-level API, generated from the Swagger spec for {{title}}.
 type {{title}}API
     =    {{#apis}}{{#operations}}{{#operation}}{{& vendorExtensions.x-routeType}} -- '{{operationId}}' route{{#hasMore}}
     :<|> {{/hasMore}}{{/operation}}{{/operations}}{{#hasMore}}
     :<|> {{/hasMore}}{{/apis}}
 
--- | Backend for {{title}}.
--- The backend can be used both for the client and the server. The client generated from the {{title}} Swagger spec
--- is a backend that executes actions by sending HTTP requests (see @create{{title}}Client@). Alternatively, provided
--- a backend, the API can be served using @run{{title}}Server@.
-data {{title}}Backend m = {{title}}Backend
-  { {{#apis}}{{#operations}}{{#operation}}{{operationId}} :: {{& vendorExtensions.x-clientType}}    {- ^ {{& notes}} -}{{#hasMore}}
-  , {{/hasMore}}{{/operation}}{{/operations}}{{#hasMore}}
-  , {{/hasMore}}{{/apis}}
-  }
 {{/apiInfo}}
 

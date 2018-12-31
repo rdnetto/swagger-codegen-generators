@@ -11,15 +11,27 @@ import {{title}}.Types
 import Control.Monad.IO.Class (MonadIO(..))
 import Data.Coerce (coerce)
 import Data.Function ((&))
+import qualified Data.Map as Map
 import Data.Proxy (Proxy(..))
 import Data.String (IsString(fromString))
-import Prelude
+import Data.Text (Text)
 import qualified Network.Wai.Handler.Warp as Warp
+import Prelude
 import Servant.API
 import Servant.Server (Handler, serve)
 
 
 {{#apiInfo}}
+-- | Backend for {{title}}.
+-- The backend can be used both for the client and the server. The client generated from the {{title}} Swagger spec
+-- is a backend that executes actions by sending HTTP requests (see @create{{title}}Client@). Alternatively, provided
+-- a backend, the API can be served using @run{{title}}Server@.
+data {{title}}Backend m = {{title}}Backend
+  { {{#apis}}{{#operations}}{{#operation}}{{operationId}} :: {{& vendorExtensions.x-clientType}}    {- ^ {{& notes}} -}{{#hasMore}}
+  , {{/hasMore}}{{/operation}}{{/operations}}{{#hasMore}}
+  , {{/hasMore}}{{/apis}}
+  }
+
 -- | Run the {{title}} server at the provided host and port.
 run{{title}}Server :: MonadIO m => ServerConfig -> {{title}}Backend Handler -> m ()
 run{{title}}Server ServerConfig{..} backend =
@@ -30,4 +42,5 @@ run{{title}}Server ServerConfig{..} backend =
       ({{#apis}}{{#operations}}{{#operation}}coerce {{operationId}}{{#hasMore}} :<|>
        {{/hasMore}}{{/operation}}{{/operations}}{{#hasMore}} :<|>
        {{/hasMore}}{{/apis}})
+
 {{/apiInfo}}

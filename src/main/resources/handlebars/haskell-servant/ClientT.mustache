@@ -1,0 +1,39 @@
+{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
+module {{title}}.ClientT where
+
+import {{title}}.Client
+
+import Control.Monad.Except (ExceptT(..), runExceptT, liftEither)
+import Control.Monad.IO.Class (MonadIO(..))
+import Control.Monad.Reader (ReaderT(..))
+import Control.Monad.Reader (MonadReader(..))
+import Control.Monad.Trans.Class (MonadTrans(..))
+import Servant.Client (ClientEnv, ServantError, runClientM)
+
+
+-- | Monad transformer for client calls.
+newtype {{title}}ClientT m a = {{title}}ClientT {
+  unClientT :: (ReaderT ClientEnv) (ExceptT ServantError m) a
+} deriving (Functor, Applicative, Monad, MonadIO)
+
+instance MonadTrans {{title}}ClientT where
+  lift ma = {{title}}ClientT (ReaderT (\_ -> ExceptT (fmap Right ma)))
+
+instance MonadIO m => {{title}}ClientMonad ({{title}}ClientT m) where
+  lift{{title}}Client clientM = {{title}}ClientT $ do
+    env <- ask
+    res <- liftIO $ runClientM clientM env
+    liftEither res
+
+runClientT :: MonadIO m
+           => ClientEnv -> {{title}}ClientT m a -> m (Either ServantError a)
+runClientT env =  runExceptT . flip runReaderT env . unClientT
+
+-- | Trivial alias
+type {{title}}Client = {{title}}ClientT IO
+
+runClient :: ClientEnv -> {{title}}Client a -> IO (Either ServantError a)
+runClient = runClientT
+

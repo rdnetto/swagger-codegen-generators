@@ -234,6 +234,7 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
         supportingFiles.add(new SupportingFile("API.mustache", "lib/" + apiName, "API.hs"));
         supportingFiles.add(new SupportingFile("Common.mustache", "lib/" + apiName, "Common.hs"));
         supportingFiles.add(new SupportingFile("Client.mustache", "lib/" + apiName, "Client.hs"));
+        supportingFiles.add(new SupportingFile("ClientT.mustache", "lib/" + apiName, "ClientT.hs"));
         supportingFiles.add(new SupportingFile("Server.mustache", "lib/" + apiName, "Server.hs"));
 
         additionalProperties.put("title", apiName);
@@ -390,12 +391,39 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
     }
 
 
+    // Extract the arguments that are passed in the route path
+    private List<String> pathToClientArgNames(String path, List<CodegenParameter> pathParams) {
+        // Map the capture params by their names.
+        HashMap<String, String> captureTypes = new HashMap<>();
+        for (CodegenParameter param : pathParams) {
+            captureTypes.put(param.baseName, param.dataType);
+        }
+
+        // Cut off the leading slash, if it is present.
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+
+        // Convert the path into a list of servant route components.
+        List<String> argNames = new ArrayList<>();
+        for (String piece : path.split("/")) {
+            if (piece.startsWith("{") && piece.endsWith("}")) {
+                String name = piece.substring(1, piece.length() - 1);
+                argNames.add(name);
+            }
+        }
+
+        return argNames;
+    }
+
+
     @Override
     public CodegenOperation fromOperation(String resourcePath, String httpMethod, Operation operation, Map<String, Schema> schemas, OpenAPI openAPI) {
         CodegenOperation op = super.fromOperation(resourcePath, httpMethod, operation, schemas, openAPI);
 
         List<String> path = pathToServantRoute(op.path, op.pathParams);
         List<String> type = pathToClientType(op.path, op.pathParams);
+        List<String> argNames = pathToClientArgNames(op.path,op.pathParams);
 
         // Query parameters appended to routes
         for (CodegenParameter param : op.queryParams) {
@@ -405,6 +433,7 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
             }
             path.add("QueryParam \"" + param.baseName + "\" " + paramType);
             type.add("Maybe " + param.dataType);
+            argNames.add(param.paramName);
         }
 
         // Either body or form data parameters appended to route
@@ -424,6 +453,7 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
         }
         if(bodyType != null) {
             type.add(bodyType);
+            argNames.add("form");
         }
 
         // Special headers appended to route
@@ -435,6 +465,7 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
                 paramType = makeQueryListType(paramType, param.collectionFormat);
             }
             type.add("Maybe " + paramType);
+            argNames.add(param.paramName);
         }
 
         // Add the HTTP method and return type
@@ -450,6 +481,7 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
 
         op.vendorExtensions.put("x-routeType", joinStrings(" :> ", path));
         op.vendorExtensions.put("x-clientType", joinStrings(" -> ", type));
+        op.vendorExtensions.put("x-clientArgNames", argNames);
         op.vendorExtensions.put("x-formName", "Form" + camelize(op.operationId));
         op.vendorExtensions.put(CodegenConstants.HAS_MORE_EXT_NAME, true);
 
