@@ -9,39 +9,45 @@ Installation follows the standard approach to installing Stack-based projects.
 1. Install the [Haskell `stack` tool](http://docs.haskellstack.org/en/stable/README).
 2. Run `stack install` to install this package.
 
-## Main Interface
+## Using as a Client
 
-The main interface to this library is in the `{{title}}.API` module, which exports the {{title}}Backend type. The {{title}}Backend
-type can be used to create and define servers and clients for the API.
+Calls to endpoints are defined in the `{{title}}.Client` module, as functions in a monad satisfying the `{{title}}ClientMonad` typeclass.
+This is typically satisfied by the `{{title}}Client` monad (and associated transformer) from the `{{title}}.ClientT` module.
 
-## Creating a Client
-
-A client can be created via the `create{{title}}Client` function, which, if provided with a hostname and a port, will generate
-a client that can be used to access the API if it is being served at that hostname / port combination. For example, if
-`localhost:8080` is serving the {{title}} API, you can write:
+To actually run the monad with `runClient`, you will need to provide a hostname and port, like so:
 
 ```haskell
-{-# LANGUAGE RecordWildCards #-}
-
-import {{title}}.API
+import {{title}}.Client
+import {{title}}.ClientT
+import Network.HTTP.Client (newManager, defaultManagerSettings)
+import Servant.Client (BaseUrl(..), Scheme(Http), mkClientEnv)
 
 main :: IO ()
 main = do
-  {{title}}Backend{..} <- create{{title}}Client (ServerConfig "localhost" 8080)
-  -- Any {{title}} API call can go here.
-  return ()
+  manager <- newManager defaultManagerSettings
+  let baseUrl = BaseUrl Http "localhost" 80 "/"
+      clientEnv = mkClientEnv manager baseUrl
+
+  res <- runClient clientEnv $ do
+    -- Any {{title}} API call can go here.
+    return ()
+
+  case res of
+       Left err -> print err
+       Right () -> return ()
 ```
 
 ## Creating a Server
 
-In order to create a server, you must use the `run{{title}}Server` function. However, you unlike the client, in which case you *got* a `{{title}}Backend`
-from the library, you must instead *provide* a `{{title}}Backend`. For example, if you have defined handler functions for all the
-functions in `{{title}}.Handlers`, you can write:
+In order to create a server, you must use the `run{{title}}Server` function. To
+specify the handling of the different endpoints, you should provide a
+`{{title}}Backend`. For example, if you have defined handler functions for all
+the functions in `{{title}}.Handlers`, you can write:
 
 ```haskell
 {-# LANGUAGE RecordWildCards #-}
 
-import {{title}}.API
+import {{title}}.Server
 
 -- A module you wrote yourself, containing all handlers needed for the {{title}}Backend type.
 import {{title}}.Handlers
@@ -50,30 +56,6 @@ import {{title}}.Handlers
 main :: IO ()
 main = do
   let server = {{title}}Backend{..}
-  run{{title}}Server (ServerConfig "localhost" 8080) server
+  run{{title}}Server "localhost" 8080 server
 ```
 
-You could use `optparse-applicative` or a similar library to read the host and port from command-line arguments:
-```
-{-# LANGUAGE RecordWildCards #-}
-
-module Main (main) where
-
-import {{title}}.API (run{{title}}Server, {{title}}Backend(..), ServerConfig(..))
-
-import Control.Applicative ((<$>), (<*>))
-import Options.Applicative (execParser, option, str, auto, long, metavar, help)
-
-main :: IO ()
-main = do
-  config <- parseArguments
-  run{{title}}Server config {{title}}Backend{}
-
--- | Parse host and port from the command line arguments.
-parseArguments :: IO ServerConfig
-parseArguments =
-  execParser $
-    ServerConfig
-      <$> option str  (long "host" <> metavar "HOST" <> help "Host to serve on")
-      <*> option auto (long "port" <> metavar "PORT" <> help "Port to serve on")
-```
