@@ -354,8 +354,13 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
         List<String> pathComponents = new ArrayList<>();
         for (String piece : path.split("/")) {
             if (piece.startsWith("{") && piece.endsWith("}")) {
-                String name = piece.substring(1, piece.length() - 1);
-                pathComponents.add("Capture \"" + name + "\" " + captureTypes.get(name));
+                final String name = piece.substring(1, piece.length() - 1);
+
+                if (captureTypes.containsKey(name)) {
+                    pathComponents.add("Capture \"" + name + "\" " + captureTypes.get(name));
+                } else {
+                    throw new IllegalArgumentException(String.format("Failed to find type %s in %s", name, captureTypes));
+                }
             } else {
                 pathComponents.add("\"" + piece + "\"");
             }
