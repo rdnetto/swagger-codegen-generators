@@ -33,11 +33,14 @@ data {{title}}Backend m = {{title}}Backend
   }
 
 -- | Run the {{title}} server at the provided host and port.
-run{{title}}Server :: MonadIO m => ServerConfig -> {{title}}Backend Handler -> m ()
-run{{title}}Server ServerConfig{..} backend =
+run{{title}}Server :: MonadIO m => Warp.HostPreference -> Warp.Port -> {{title}}Backend Handler -> m ()
+run{{title}}Server host port backend =
   liftIO $ Warp.runSettings warpSettings $ serve (Proxy :: Proxy {{title}}API) (serverFromBackend backend)
   where
-    warpSettings = Warp.defaultSettings & Warp.setPort configPort & Warp.setHost (fromString configHost)
+    warpSettings = Warp.defaultSettings
+                 & Warp.setPort port
+                 & Warp.setHost host
+
     serverFromBackend {{title}}Backend{..} =
       ({{#apis}}{{#operations}}{{#operation}}coerce {{operationId}}{{#hasMore}} :<|>
        {{/hasMore}}{{/operation}}{{/operations}}{{#hasMore}} :<|>
