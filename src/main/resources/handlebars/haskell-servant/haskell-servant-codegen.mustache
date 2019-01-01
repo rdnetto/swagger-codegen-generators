@@ -21,18 +21,19 @@ library
   ghc-options:         -Wall
   build-depends:       base
                      , aeson
-                     , text
                      , containers
+                     , http-api-data
+                     , http-client
+                     , http-types
+                     , mmorph
+                     , mtl
                      , network-uri
                      , servant
-                     , http-api-data
+                     , servant
                      , servant-client
                      , servant-client-core
                      , servant-server
-                     , servant
-                     , warp
+                     , text
                      , transformers
-                     , mtl
-                     , http-client
-                     , http-types
+                     , warp
   default-language:    Haskell2010
