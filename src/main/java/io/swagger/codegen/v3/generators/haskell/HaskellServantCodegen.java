@@ -484,7 +484,8 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
         path.add("Verb '" + op.httpMethod.toUpperCase() + " 200 '[JSON] " + returnType);
         type.add("m " + returnType);
 
-        op.vendorExtensions.put("x-routeType", joinStrings(" :> ", path));
+        op.vendorExtensions.put("x-routeName", camelize(op.operationId) + "Route");
+        op.vendorExtensions.put("x-routeType", joinStrings("\n  :> ", path));
         op.vendorExtensions.put("x-clientType", joinStrings(" -> ", type));
         op.vendorExtensions.put("x-clientArgNames", argNames);
         op.vendorExtensions.put("x-formName", "Form" + camelize(op.operationId));
