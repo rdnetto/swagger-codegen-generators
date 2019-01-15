@@ -23,9 +23,7 @@ import Servant.Server (Handler, serve)
 
 {{#apiInfo}}
 -- | Backend for {{title}}.
--- The backend can be used both for the client and the server. The client generated from the {{title}} Swagger spec
--- is a backend that executes actions by sending HTTP requests (see @create{{title}}Client@). Alternatively, provided
--- a backend, the API can be served using @run{{title}}Server@.
+-- This is used to supply functions for handling the individual routes.
 data {{title}}Backend m = {{title}}Backend
   { {{#apis}}{{#operations}}{{#operation}}{{operationId}} :: {{& vendorExtensions.x-clientType}}    {- ^ {{& notes}} -}{{#hasMore}}
   , {{/hasMore}}{{/operation}}{{/operations}}{{#hasMore}}
