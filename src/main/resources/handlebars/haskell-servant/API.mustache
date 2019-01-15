@@ -39,7 +39,8 @@ instance ToForm {{vendorExtensions.x-formName}} where
 
 -- | Servant type-level API, generated from the Swagger spec for {{title}}.
 {{#apis}}{{#operations}}{{#operation}}type {{& vendorExtensions.x-routeName}}
-  =  {{& vendorExtensions.x-routeType}}
+  =  {{#vendorExtensions.x-routeType}}{{{.}}}{{^@last}}
+  :> {{/@last}}{{/vendorExtensions.x-routeType}}
 
 {{/operation}}{{/operations}}
 {{/apis}}
