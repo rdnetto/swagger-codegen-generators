@@ -109,7 +109,23 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
                         "instance", "let", "in",
                         "mdo", "module", "newtype",
                         "proc", "qualified", "rec",
-                        "type", "where"
+                        "type", "where",
+
+                        // Function in prelude
+                        "not", "abs",
+                        "quot", "rem", "div", "mod",
+                        "pi", "exp", "log", "sin", "cos", "asin", "acos", "atan", "sinh", "cosh", "asinh", "acosh", "atanh",
+                        "round", "ceiling", "floor",
+                        "subtract", "even", "odd",
+                        "return", "fail",
+                        "elem", "maximum", "minimum", "sum", "product",
+                        "traverse", "sequence",
+                        "id", "const", "flip", "until", "error", "undefined", "seq",
+                        "map", "filter", "head", "last", "tail", "init",
+                        "null", "length", "reverse",
+                        "and", "or", "any", "all", "concat",
+                        "iterate", "repeat", "replicate", "cycle", "take", "drop", "span", "break", "lookup",
+                        "zip", "unzip", "lines", "words", "show", "print"
                 )
         );
 
