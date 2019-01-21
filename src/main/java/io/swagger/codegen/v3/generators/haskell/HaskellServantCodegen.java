@@ -153,24 +153,32 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
                 )
         );
 
+        // The types are defined as (schema, format) in
+        // https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#data-types.
+        // DefaultCodegenConfig.getTypeOfSchema() then maps those tuples to individual strings.
+        // Note that we must have From/ToHttpApiData instances for them.
         typeMapping.clear();
         typeMapping.put("array", "List");
         typeMapping.put("set", "Set");
         typeMapping.put("boolean", "Bool");
         typeMapping.put("string", "Text");
+        typeMapping.put("char", "Char");
+
         typeMapping.put("int", "Int");
         typeMapping.put("long", "Integer");
         typeMapping.put("short", "Int");
-        typeMapping.put("char", "Char");
         typeMapping.put("float", "Float");
         typeMapping.put("double", "Double");
-        typeMapping.put("DateTime", "Integer");
-        typeMapping.put("file", "FilePath");
+        typeMapping.put("BigDecimal", "Double");
         typeMapping.put("number", "Double");
         typeMapping.put("integer", "Int");
+
+        typeMapping.put("date", "Day");
+        typeMapping.put("DateTime", "ZonedTime");
+        typeMapping.put("file", "FilePath");
         typeMapping.put("any", "Value");
-        typeMapping.put("UUID", "Text");
-        typeMapping.put("ByteArray", "Text");
+        typeMapping.put("ByteArray", "ByteString");
+        typeMapping.put("binary", "ByteString");
 
         importMapping.clear();
         importMapping.put("Map", "qualified Data.Map as Map");
