@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# OPTIONS_GHC -fno-warn-unused-binds -fno-warn-unused-imports #-}
+{-# OPTIONS_GHC -fno-warn-unused-binds -fno-warn-unused-imports -fno-warn-orphans #-}
 
 module {{title}}.Types (
 {{#models}}
@@ -12,10 +12,11 @@ module {{title}}.Types (
 
 import Data.Aeson.Types (Options(..), defaultOptions)
 import Data.Aeson (Value, FromJSON(..), ToJSON(..), genericToJSON, genericParseJSON)
-import Data.Function ((&))
+import Data.Function ((&), on)
 import Data.List (stripPrefix)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
+import Data.Time.LocalTime (ZonedTime, zonedTimeToUTC)
 import GHC.Generics (Generic)
 import Prelude
 import qualified Data.Map as Map
@@ -23,6 +24,11 @@ import qualified Data.Text as T
 
 {{#imports}}import {{import}}
 {{/imports}}
+
+-- Orphan instance - needed so we can derive Eq instances for our data types
+instance Eq ZonedTime where
+    (==) = (==) `on` zonedTimeToUTC
+
 
 {{#models}}
 {{#model}}
