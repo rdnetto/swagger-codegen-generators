@@ -21,12 +21,16 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
@@ -90,11 +94,6 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
      * Api Package.  Optional, if needed, this can be used in templates
      */
         apiPackage = "API";
-
-    /*
-     * Model Package.  Optional, if needed, this can be used in templates
-     */
-        modelPackage = "Types";
 
         // Haskell keywords and reserved function names, taken mostly from https://wiki.haskell.org/Keywords
         setReservedWordsLowerCase(
@@ -182,6 +181,10 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
 
         importMapping.clear();
         importMapping.put("Map", "qualified Data.Map as Map");
+        importMapping.put("Day", "Data.Time.Calendar (Day)");
+        importMapping.put("ZonedTime", "Data.Time.LocalTime (ZonedTime)");
+        importMapping.put("Text", "Data.Text (Text)");
+        importMapping.put("ByteString", "Data.ByteString (ByteString)");
 
         cliOptions.add(new CliOption(CodegenConstants.MODEL_PACKAGE, CodegenConstants.MODEL_PACKAGE_DESC));
         cliOptions.add(new CliOption(CodegenConstants.API_PACKAGE, CodegenConstants.API_PACKAGE_DESC));
@@ -634,5 +637,59 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
         supportingFiles.add(new SupportingFile("stack.mustache", "", "stack.yaml"));
         supportingFiles.add(new SupportingFile("Setup.mustache", "", "Setup.hs"));
 
+    }
+
+    @Override
+    public String toModelImport(String name) {
+        // We already have an unqualified import of the module containing these types,
+        // so we don't need to import them
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> postProcessSupportingFileData(Map<String, Object> bundle) {
+        // Generate a single definition of all imports needed with no duplicates
+        // Because we're manipulating the bundle directly, this is very type-unsafe
+        final Collection<String> imports = new TreeSet<>();
+
+        // Operations - already in qualified form
+        final Map<String, Object> apiInfo = getOrThrow(bundle, "apiInfo");
+        final List<Map<String, Object>> apis = getOrThrow(apiInfo, "apis");
+
+        for (Map<String, Object> api : apis) {
+            final List<Map<String, Object>> apiImports = getOrThrow(api, "imports");
+
+            for (Map<String, Object> apiImport : apiImports) {
+                imports.add(getOrThrow(apiImport, "import"));
+            }
+        }
+
+        // Models
+        final List<Map<String, Object>> models = getOrThrow(bundle, "models");
+
+        for (Map<String, Object> modelEntry : models) {
+            final CodegenModel model = getOrThrow(modelEntry, "model");
+
+            // These are in unqualified form, so we need to check if they need to be imported
+            // Note that internal types do not, as we import the entire Types module
+            model.getImports()
+                    .stream()
+                    .map(importMapping::get)
+                    .filter(Objects::nonNull)
+                    .forEach(imports::add);
+        }
+
+        bundle.put("imports", imports);
+        return bundle;
+    }
+
+    private static <V> V getOrThrow(Map<String, Object> map, String key) {
+        final V res = (V) map.get(key);
+
+        if (res == null) {
+            throw new IllegalArgumentException("Could not find " + key + " in " + map);
+        } else {
+            return res;
+        }
     }
 }

@@ -10,20 +10,20 @@ module {{title}}.Types (
 {{/models}}
   ) where
 
-import Data.Aeson.Types (Options(..), defaultOptions)
 import Data.Aeson (Value, FromJSON(..), ToJSON(..), genericToJSON, genericParseJSON)
+import Data.Aeson.Types (Options(..), defaultOptions)
 import Data.Function ((&), on)
 import Data.List (stripPrefix)
+import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
-import Data.Text (Text)
+import qualified Data.Text as T
 import Data.Time.LocalTime (ZonedTime, zonedTimeToUTC)
 import GHC.Generics (Generic)
 import Prelude
-import qualified Data.Map as Map
-import qualified Data.Text as T
 
-{{#imports}}import {{import}}
+{{#imports}}import {{.}}
 {{/imports}}
+
 
 -- Orphan instance - needed so we can derive Eq instances for our data types
 instance Eq ZonedTime where

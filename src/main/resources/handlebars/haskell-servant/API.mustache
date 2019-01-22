@@ -11,13 +11,15 @@ import {{title}}.Common
 import {{title}}.Types
 
 import qualified Data.Map as Map
-import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import Prelude
 import Servant.API
 import Servant.API.Verbs (StdMethod(..), Verb)
 import Web.Internal.FormUrlEncoded (ToForm(..), FromForm(..), parseUnique)
+
+{{#apiInfo}}{{#apis}}{{#imports}}import {{import}}
+{{/imports}}{{/apis}}{{/apiInfo}}
 
 
 {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}{{#hasFormParams}}
