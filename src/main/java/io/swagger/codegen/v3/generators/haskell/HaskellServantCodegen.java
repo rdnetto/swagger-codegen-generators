@@ -176,6 +176,7 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
         typeMapping.put("DateTime", "ZonedTime");
         typeMapping.put("file", "FilePath");
         typeMapping.put("any", "Value");
+        // TODO: binary format is currently broken as it requires the use of servant-multipart
         typeMapping.put("ByteArray", "ByteString");
         typeMapping.put("binary", "ByteString");
 
