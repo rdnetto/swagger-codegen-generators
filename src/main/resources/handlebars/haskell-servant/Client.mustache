@@ -34,7 +34,9 @@ class Monad m => {{title}}ClientMonad m where
 
 -- We generate the clients directly from the routes as a workaround for https://github.com/haskell-servant/servant/issues/986
 {{#apis}}{{#operations}}{{#operation}}
-{- | {{& notes}} -}
+{- | {{httpMethod}} {{path}}
+     {{& notes}}
+ -}
 {{operationId}} :: {{title}}ClientMonad m => {{& vendorExtensions.x-clientType}}
 {{operationId}} {{#vendorExtensions.x-clientArgNames}}x{{& @index}} {{/vendorExtensions.x-clientArgNames}} = {{operationId}}' {{#vendorExtensions.x-clientArgNames}}(coerce x{{& @index}}) {{/vendorExtensions.x-clientArgNames}} where
   {{operationId}}' = hoistClient proxy lift{{title}}Client (client proxy)
