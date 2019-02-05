@@ -11,6 +11,7 @@ import Control.Monad.Morph (MFunctor(..))
 import Control.Monad.Reader (ReaderT(..))
 import Control.Monad.Reader (MonadReader(..))
 import Control.Monad.Trans.Class (MonadTrans(..))
+import Prelude
 import Servant.Client (ClientEnv, ServantError, runClientM)
 
 
@@ -22,8 +23,8 @@ newtype {{title}}ClientT m a = {{title}}ClientT {
 instance MonadTrans {{title}}ClientT where
   lift ma = {{title}}ClientT (ReaderT (\_ -> ExceptT (fmap Right ma)))
 
-instance MFunctor SwaggerPetstoreClientT where
-  hoist f m = SwaggerPetstoreClientT (ReaderT (\env -> ExceptT (f $ runClientT env m)))
+instance MFunctor {{title}}ClientT where
+  hoist f m = {{title}}ClientT (ReaderT (\env -> ExceptT (f $ runClientT env m)))
 
 instance MonadIO m => {{title}}ClientMonad ({{title}}ClientT m) where
   lift{{title}}Client clientM = {{title}}ClientT $ do
