@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-unused-imports #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
@@ -12,7 +13,7 @@ import Control.Monad.Reader (ReaderT(..))
 import Control.Monad.Reader (MonadReader(..))
 import Control.Monad.Trans.Class (MonadTrans(..))
 import Prelude
-import Servant.Client (ClientEnv, ServantError, runClientM)
+import Servant.Client (BaseUrl(..), ClientEnv, ServantError, Scheme(..), runClientM)
 
 
 -- | Monad transformer for client calls.
@@ -32,6 +33,12 @@ instance MonadIO m => {{title}}ClientMonad ({{title}}ClientT m) where
     res <- liftIO $ runClientM clientM env
     liftEither res
 
+
+{{#x-url}}
+baseUrl :: BaseUrl
+baseUrl = BaseUrl {{x-scheme}} "{{host}}" {{x-port}} "{{basePathWithoutHost}}"
+
+{{/x-url}}
 runClientT :: ClientEnv -> {{title}}ClientT m a -> m (Either ServantError a)
 runClientT env =  runExceptT . flip runReaderT env . unClientT
 

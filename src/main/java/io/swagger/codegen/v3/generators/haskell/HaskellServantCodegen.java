@@ -10,6 +10,7 @@ import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
+import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.ArraySchema;
@@ -19,6 +20,7 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,10 +29,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
@@ -280,6 +282,23 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
             replacements.add(o);
         }
         additionalProperties.put("specialCharReplacements", replacements);
+
+        // base url info
+        final URL serverURL = URLPathUtil.getServerURL(openAPI);
+
+        additionalProperties.put("x-url", serverURL);
+
+        if (serverURL != null) {
+            additionalProperties.put("x-scheme",
+                    Optional.ofNullable(serverURL)
+                            .map(URL::getProtocol)
+                            .map(HaskellServantCodegen::titleCase)
+                            .orElse("Https"));
+
+            additionalProperties.put("x-port", serverURL.getPort() == -1
+                    ? serverURL.getDefaultPort()
+                    : serverURL.getPort());
+        }
 
         super.preprocessOpenAPI(openAPI);
     }
@@ -691,6 +710,14 @@ public class HaskellServantCodegen extends DefaultCodegenConfig implements Codeg
             throw new IllegalArgumentException("Could not find " + key + " in " + map);
         } else {
             return res;
+        }
+    }
+
+    private static String titleCase(String s) {
+        if (s.isEmpty()) {
+            return s;
+        } else {
+            return Character.toTitleCase(s.charAt(0)) + s.substring(1).toLowerCase();
         }
     }
 }
